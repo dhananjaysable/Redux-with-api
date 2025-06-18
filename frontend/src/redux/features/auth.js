@@ -19,16 +19,17 @@ export const getAuthUser = createAsyncThunk("auth", async () => {
 export const authSlice = createSlice({
     name: "auth",
     initialState,
-    extraReducers: {
-        [getAuthUser.pending]: (state) => {
-            state.loading = true
-        },
-        [getAuthUser.fulfilled]: (state, action) => {
-            state.user = action.payload
-        },
-        [getAuthUser.rejected]: (state, action) => {
-            state.error = action.payload
-        }
+    extraReducers: (builder) => {
+        builder.addCase(getAuthUser.pending, (state) => {
+            state.loading = true;
+        })
+            .addCase(getAuthUser.fulfilled, (state, actions) => {
+                state.loading = false
+                state.user = actions.payload
+            }).addCase(getAuthUser.rejected, (state, actions) => {
+                state.loading = false
+                state.error = actions.payload
+            })
     }
 })
 
