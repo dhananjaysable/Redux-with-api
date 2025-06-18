@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 
-export const checkAuth = async (req, resizeBy, next) => {
+export const checkAuth = async (req, res, next) => {
     try {
         const { access_token } = req.cookies;
         if (!access_token) {
@@ -9,7 +9,7 @@ export const checkAuth = async (req, resizeBy, next) => {
                 message: "Token Required!"
             })
         }
-        const decodeToken = await jwt.verify(access_token, process.env.JWT_SECRET);
+        const decodeToken = jwt.verify(access_token, process.env.JWT_SECRET);
         if (!decodeToken) {
             return res.status(401).json({
                 success: false,
