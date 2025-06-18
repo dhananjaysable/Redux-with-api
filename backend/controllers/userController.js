@@ -80,7 +80,7 @@ export const login = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: `Error in register : ${error.message}`
+            message: `Error in login : ${error.message}`
         })
     }
 }
@@ -96,7 +96,7 @@ export const logout = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: `Error in register : ${error.message}`
+            message: `Error in logout : ${error.message}`
         })
     }
 }
