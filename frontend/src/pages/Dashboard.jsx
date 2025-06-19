@@ -1,21 +1,17 @@
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../redux/features/auth";
+import { useAuth } from "../hooks/useAuth";
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
-  const data = useSelector((state) => state.auth);
-  if (data.loading) {
-    return <h1>Loading...</h1>;
-  }
+  const { user, logout } = useAuth();
+  console.log(user);
 
   return (
     <div>
-      <h1 className="text-3xl">{data.user?.name || "User"}</h1>
-      <button onClick={() => dispatch(logout())}>Logout</button>
-      {data.loading && <p>Logging out...</p>}
-      {data.error && <p style={{ color: "red" }}>{data.error}</p>}
+      <h1>Welcome, {user?.name.split(" ")[0]}!</h1>
+      <p>Email: {user?.email}</p>
+      <button onClick={logout} className="btn-secondary">
+        Logout
+      </button>
     </div>
   );
 };
-
 export default Dashboard;

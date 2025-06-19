@@ -1,52 +1,107 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { login } from "../redux/features/auth";
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { useAuth } from "../hooks/useAuth";
 
-  const dispatch = useDispatch();
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(login({ email, password }));
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const navigate = useNavigate();
+
+  const {
+    login,
+    isLoading,
+    error,
+    message,
+    isAuthenticated,
+    clearAuthError,
+    clearAuthMessage,
+  } = useAuth();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+      clearAuthError();
+    }
+    if (message && isAuthenticated) {
+      toast.success(message);
+      clearAuthMessage();
+      navigate("/dashboard");
+    }
+  }, [
+    error,
+    message,
+    isAuthenticated,
+    clearAuthError,
+    clearAuthMessage,
+    navigate,
+  ]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     axios.defaults.withCredentials = true;
-  //     const { data } = await axios.post(
-  //       `http://localhost:8000/api/auth/login`,
-  //       {
-  //         email,
-  //         password,
-  //       },
-  //       { headers: { "Content-Type": "application/json" } }
-  //     );
-  //     if (data.success) {
-  //       navigate("/dashboard");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      const result = await login(formData);
+      if (result.type === "auth/login/fulfilled") {
+        console.log("Login successful");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    }
+  };
+
+  if (isAuthenticated) {
+    return <div>You are already logged in!</div>;
+  }
+
   return (
-    <div>
+    <div className="login-form">
+      <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter email"
-          onChange={(e) => setEmail(e.target.value)}
-          value={email}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Enter name"
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
-        />
-        <button type="submit">Submit</button>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
+        </div>
+        <button type="submit" disabled={isLoading} className="btn-primary">
+          {isLoading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );
